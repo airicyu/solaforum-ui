@@ -24,8 +24,11 @@ code {
   background-color:#f0f0f0;
 }
 
-
 .gap-space {
   width: 1px;
   height: 5px;
+}
+
+.error-highlight {
+  border: 1px solid red;
 }
