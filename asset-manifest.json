@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/solaforum-ui/static/css/main.27bd1a73.css",
+    "main.js": "/solaforum-ui/static/js/main.04fc9978.js",
+    "index.html": "/solaforum-ui/index.html",
+    "main.27bd1a73.css.map": "/solaforum-ui/static/css/main.27bd1a73.css.map",
+    "main.04fc9978.js.map": "/solaforum-ui/static/js/main.04fc9978.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.27bd1a73.css",
+    "static/js/main.04fc9978.js"
+  ]
+}
