@@ -9,6 +9,7 @@ import { EarthPostItem } from "../components/EarthPostItem";
 import { EditFilled, HomeFilled } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import * as anchor from "@coral-xyz/anchor";
 
 const earthId = new BN(1);
 
@@ -84,36 +85,73 @@ export const ViewEarthPosts = (props: any) => {
         title="New Post"
         open={isCreatePostModalOpen}
         onOk={async (e) => {
-          await createPost(earthId, inputTitle, inputContent);
-          setInputTitle("");
-          setInputContent("");
-          setIsCreatePostModalOpen(false);
+          if (anchor.utils.bytes.utf8.encode(inputTitle).length > 30) {
+            messageApi.open({
+              type: "error",
+              content: "Title too long!",
+            });
+          } else if (
+            anchor.utils.bytes.utf8.encode(inputContent).length > 255
+          ) {
+            messageApi.open({
+              type: "error",
+              content: "Content too long!",
+            });
+          } else {
+            await createPost(earthId, inputTitle, inputContent);
+            setInputTitle("");
+            setInputContent("");
+            setIsCreatePostModalOpen(false);
+          }
         }}
         onCancel={() => {
           setIsCreatePostModalOpen(false);
         }}
       >
-        <div>Title:</div>
-        <div className="gap-space"></div>
         <div>
-          <Input
-            maxLength={30}
-            defaultValue={inputTitle}
-            onChange={(e) => {
-              setInputTitle(e.target.value);
-            }}
-          ></Input>
+          <div>
+            Title: ({anchor.utils.bytes.utf8.encode(inputTitle).length}/30
+            bytes)
+          </div>
+          <div className="gap-space"></div>
+          <div
+            className={
+              anchor.utils.bytes.utf8.encode(inputTitle).length > 30
+                ? "error-highlight"
+                : ""
+            }
+          >
+            <Input
+              maxLength={30}
+              defaultValue={inputTitle}
+              onChange={(e) => {
+                setInputTitle(e.target.value);
+              }}
+            ></Input>
+          </div>
         </div>
         <div className="gap-space"></div>
-        <div>Content:</div>
         <div>
-          <TextArea
-            maxLength={255}
-            defaultValue={inputContent}
-            onChange={(e) => {
-              setInputContent(e.target.value);
-            }}
-          ></TextArea>
+          <div>
+            Content: ({anchor.utils.bytes.utf8.encode(inputContent).length}/255
+            bytes)
+          </div>
+          <div
+            className={
+              anchor.utils.bytes.utf8.encode(inputContent).length > 255
+                ? "error-highlight"
+                : ""
+            }
+          >
+            <TextArea
+              rows={8}
+              maxLength={255}
+              defaultValue={inputContent}
+              onChange={(e) => {
+                setInputContent(e.target.value);
+              }}
+            ></TextArea>
+          </div>
         </div>
       </Modal>
     </>
@@ -141,16 +179,8 @@ export const ViewEarthPosts = (props: any) => {
       </div>
       <hr />
       {postElements}
-      {/* <FloatButton
-        icon={
-          <EditTwoTone
-            onClick={() => {
-              setIsCreatePostModalOpen(true);
-            }}
-          />
-        }
-      ></FloatButton> */}
       {createPostModal}
+      {contextHolder}
     </>
   );
 };

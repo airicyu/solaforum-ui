@@ -10,6 +10,7 @@ import TextArea from "antd/es/input/TextArea";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { NavLink } from "react-router-dom";
 import _ from "lodash";
+import * as anchor from "@coral-xyz/anchor";
 
 const earthId = new BN(1);
 
@@ -95,23 +96,42 @@ export const ViewPost = () => {
         title="New Reply"
         open={isCreateReplyModalOpen}
         onOk={async (e) => {
-          await createReply(earthId, new BN(postId!), inputContent);
-          setInputContent("");
-          setIsCreateReplyModalOpen(false);
+          if (anchor.utils.bytes.utf8.encode(inputContent).length > 255) {
+            messageApi.open({
+              type: "error",
+              content: "Content too long!",
+            });
+          } else {
+            await createReply(earthId, new BN(postId!), inputContent);
+            setInputContent("");
+            setIsCreateReplyModalOpen(false);
+          }
         }}
         onCancel={() => {
           setIsCreateReplyModalOpen(false);
         }}
       >
-        <div>Content:</div>
         <div>
-          <TextArea
-            maxLength={255}
-            defaultValue={inputContent}
-            onChange={(e) => {
-              setInputContent(e.target.value);
-            }}
-          ></TextArea>
+          <div>
+            Content: ({anchor.utils.bytes.utf8.encode(inputContent).length}/255
+            bytes)
+          </div>
+          <div
+            className={
+              anchor.utils.bytes.utf8.encode(inputContent).length > 255
+                ? "error-highlight"
+                : ""
+            }
+          >
+            <TextArea
+              rows={8}
+              maxLength={255}
+              defaultValue={inputContent}
+              onChange={(e) => {
+                setInputContent(e.target.value);
+              }}
+            ></TextArea>
+          </div>
         </div>
       </Modal>
     </>
@@ -168,6 +188,7 @@ export const ViewPost = () => {
       })}
 
       {createReplyModal}
+      {contextHolder}
     </>
   );
 };
