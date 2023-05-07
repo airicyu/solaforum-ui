@@ -5,7 +5,6 @@ import {
   isVersionedTransaction,
   WalletName,
 } from "@solana/wallet-adapter-base";
-import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import {
   TransactionVersion,
   Keypair,

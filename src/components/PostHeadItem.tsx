@@ -1,6 +1,5 @@
-import { Card, Divider, List, Tag } from "antd";
+import { Card, Tag } from "antd";
 import { PostDto } from "../core/models/postDto.js";
-import { NavLink } from "react-router-dom";
 import { DateTime } from "luxon";
 import { formatAgoDate } from "../utils/utils";
 

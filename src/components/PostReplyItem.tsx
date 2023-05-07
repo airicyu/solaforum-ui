@@ -1,8 +1,6 @@
-import { Card, List, Tag } from "antd";
-import { PostDto } from "../core/models/postDto.js";
-import { NavLink } from "react-router-dom";
+import { Card, Tag } from "antd";
 import { ReplyDto } from "../core/models/replyDto.js";
-import luxon, { DateTime } from "luxon";
+import { DateTime } from "luxon";
 import { formatAgoDate } from "../utils/utils";
 
 export const PostReplyItem = ({ reply }: { reply: ReplyDto }) => {

@@ -5,7 +5,6 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-ant-design";
-import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { TestWalletAdapter } from "./TestWallet";
 
 const endpoint = "https://api.devnet.solana.com";

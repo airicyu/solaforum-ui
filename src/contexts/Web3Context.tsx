@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import { createContext, useState, useMemo, useCallback } from "react";
 import * as web3 from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 
@@ -15,7 +9,7 @@ import { idl } from "../core/idl";
 import { ForumService } from "../core/forumService";
 import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { Program } from "@coral-xyz/anchor";
-import config, { Config } from "../config";
+import config from "../config";
 
 declare type Web3ContextType = {
   // network: Config["network"];
