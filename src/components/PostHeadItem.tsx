@@ -19,7 +19,7 @@ export const PostHeadItem = ({ post }: { post: PostDto }) => {
       title={
         <>
           <div style={{ float: "left", width: 150 }}>
-            {" "}
+            By{" "}
             <Tag title={post.creator.toString()}>
               {post.creatorName.toString()}
             </Tag>

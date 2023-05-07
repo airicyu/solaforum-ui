@@ -21,6 +21,10 @@ module.exports = {
           // CRACO is being used to add these polyfills back into the webpack config until they are not needed.
           crypto: require.resolve("crypto-browserify"),
           stream: require.resolve("stream-browserify"),
+          http: require.resolve("stream-http"),
+          https: require.resolve("https-browserify"),
+          zlib: require.resolve("browserify-zlib"),
+          url: require.resolve("url"),
           fs: false,
         },
       },

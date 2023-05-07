@@ -5,6 +5,8 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-ant-design";
+import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { TestWalletAdapter } from "./TestWallet";
 
 const endpoint = "https://api.devnet.solana.com";
 
@@ -25,7 +27,8 @@ export const WalletConnector = ({ children }: any) => {
        * instantiate its legacy wallet adapter here. Common legacy adapters can be found
        * in the npm package `@solana/wallet-adapter-wallets`.
        */
-      //new UnsafeBurnerWalletAdapter(),
+      new TestWalletAdapter(),
+      // new UnsafeBurnerWalletAdapter(),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [network]

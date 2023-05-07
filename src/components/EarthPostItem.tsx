@@ -21,6 +21,7 @@ export const EarthPostItem = ({ post }: { post: PostDto }) => {
       {
         <>
           <div style={{ float: "left", width: 150 }}>
+            By{" "}
             <Tag title={post.creator.toString()}>
               {post.creatorName.toString()}
             </Tag>

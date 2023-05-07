@@ -5,10 +5,11 @@ import { Web3Context } from "./contexts/Web3Context";
 import { ViewPost } from "./pages/ViewPost";
 // import { WalletConnector } from "./contexts/WalletConnector";
 import { WalletMultiButton } from "@solana/wallet-adapter-ant-design";
-import { useContext, useCallback, useMemo, useState } from "react";
-import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { useContext, useCallback, useMemo, useState, useEffect } from "react";
+import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { Alert, Button, Input, Modal, Space, message } from "antd";
 import * as anchor from "@coral-xyz/anchor";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const router = createHashRouter([
   {
@@ -30,6 +31,16 @@ function App() {
   const [isInitUserModalOpen, setIsInitUserModalOpen] = useState(false);
   const [inputUserName, setInputUserName] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
+  const [balance, setBalance] = useState<number | null>(null);
+  const [refreshBalanceTime, setRefreshBalanceTime] = useState(0);
+  let [prevAnchorWallet, setPrevAnchorWallet] = useState<
+    AnchorWallet | undefined
+  >();
+
+  if (prevAnchorWallet !== anchorWallet) {
+    setPrevAnchorWallet(anchorWallet);
+    setRefreshBalanceTime(0);
+  }
 
   const initializeUser = useCallback(
     (name: string) => {
@@ -39,10 +50,11 @@ function App() {
             anchorWallet.publicKey,
             name
           );
+          web3Context?.refreshUserInitStatus();
         }
       })();
     },
-    [anchorWallet, web3Context?.forumService]
+    [anchorWallet, web3Context]
   );
 
   const userInitNotice = useMemo(() => {
@@ -131,15 +143,82 @@ function App() {
     [initializeUser, inputUserName, isInitUserModalOpen, messageApi]
   );
 
+  useEffect(() => {
+    const id = setInterval(async () => {
+      if (anchorWallet && Date.now() > refreshBalanceTime) {
+        setRefreshBalanceTime(Date.now() + 6000);
+        const accountBalance = await web3Context?.connection.getBalance(
+          anchorWallet.publicKey
+        );
+        if (accountBalance !== undefined) {
+          setBalance(accountBalance / LAMPORTS_PER_SOL);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, [anchorWallet, refreshBalanceTime, web3Context?.connection]);
+
+  const requestAirdrop = useCallback(() => {
+    if (anchorWallet?.publicKey) {
+      (async () => {
+        let balance = await web3Context?.connection.getBalance(
+          anchorWallet.publicKey
+        );
+
+        if (balance !== undefined) {
+          messageApi.open({
+            type: "info",
+            content: `Your wallet ${anchorWallet.publicKey.toString()} currently has ${
+              balance / LAMPORTS_PER_SOL
+            } SOL. Now trying to airdrop 2 SOL for you...`,
+          });
+
+          try {
+            await web3Context?.connection.requestAirdrop(
+              anchorWallet.publicKey,
+              2 * LAMPORTS_PER_SOL
+            );
+            balance = await web3Context?.connection.getBalance(
+              anchorWallet.publicKey
+            );
+
+            if (balance !== undefined) {
+              messageApi.open({
+                type: "info",
+                content: `Now Your wallet ${anchorWallet.publicKey.toString()} currently has ${
+                  balance / LAMPORTS_PER_SOL
+                } SOL.`,
+              });
+            }
+          } catch (e) {
+            messageApi.open({
+              type: "error",
+              content: `Airdrop failed! Please try again some time later...`,
+            });
+          }
+        }
+      })();
+    }
+  }, [anchorWallet?.publicKey, messageApi, web3Context?.connection]);
+
   return (
     <div className="App">
       <header className="App-header">
         <div>{userInitNotice}</div>
-        <div style={{ float: "right" }}>
-          <WalletMultiButton></WalletMultiButton>
+        <div style={{ float: "right", paddingRight: 20 }}>
+          <div style={{ float: "right" }}>
+            <WalletMultiButton></WalletMultiButton>
+          </div>
+          <div style={{ clear: "both" }}></div>
+          <div style={{ float: "right" }}>
+            <Button onClick={requestAirdrop}>Request airdrop</Button>{" "}
+          </div>
+          <div style={{ clear: "both" }}></div>
         </div>
-        <div style={{ clear: "both" }}></div>
-
+        <div style={{ float: "right", paddingRight: 20 }}>
+          <div>SOL balance: {balance}</div>
+        </div>
         <RouterProvider router={router} />
       </header>
       {initUserModel}

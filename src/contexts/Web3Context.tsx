@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useMemo } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import * as web3 from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 
@@ -10,6 +16,7 @@ import { ForumService } from "../core/forumService";
 import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { Program } from "@coral-xyz/anchor";
 import config, { Config } from "../config";
+
 declare type Web3ContextType = {
   // network: Config["network"];
   // endpoint: string;
@@ -21,6 +28,7 @@ declare type Web3ContextType = {
   pdaAccounts: PdaAccounts;
   programService: ProgramService;
   forumService: ForumService;
+  refreshUserInitStatus: () => void;
 };
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined);
@@ -117,6 +125,10 @@ const Web3ContextProvider = ({ children }: any) => {
     })();
   }
 
+  const refreshUserInitStatus = useCallback(() => {
+    setIsRefreshUserInitStatus(true);
+  }, []);
+
   const provider = {
     connection,
     anchorWallet,
@@ -126,6 +138,7 @@ const Web3ContextProvider = ({ children }: any) => {
     pdaAccounts,
     programService,
     forumService,
+    refreshUserInitStatus,
   };
 
   return (

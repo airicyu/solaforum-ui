@@ -20,7 +20,7 @@ export const PostReplyItem = ({ reply }: { reply: ReplyDto }) => {
       title={
         <>
           <div style={{ float: "left", width: 150 }}>
-            [R#{reply.id}]{" "}
+            [R#{reply.id}] By{" "}
             <Tag title={reply.author.toString()}>
               {reply.authorName.toString()}
             </Tag>
