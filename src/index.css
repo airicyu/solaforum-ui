@@ -17,16 +17,16 @@ code {
 }
 
 .post-head-card {
-  background-color:#efefef;
+  border-width: 2px;
+  border-color: #777777;
 }
 
-.post-reply-card {
-  background-color:#f0f0f0;
-}
+/* .post-reply-card {
+} */
 
 .gap-space {
   width: 1px;
-  height: 5px;
+  height: 20px;
 }
 
 .error-highlight {

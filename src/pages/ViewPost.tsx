@@ -1,7 +1,7 @@
-import { Card, Tag, Modal, message, Radio } from "antd";
-import { PostWithReplyDto } from "../models/ReplyDto";
-import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { Card, Tag, Modal, message, Radio, Divider, Row, Col } from "antd";
+import { ReplyDto } from "../core/models/replyDto.js";
+import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { Web3Context } from "../contexts/Web3Context";
 import BN from "bn.js";
 import { PostReplyItem } from "../components/PostReplyItem";
@@ -11,15 +11,19 @@ import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import { NavLink } from "react-router-dom";
 import _ from "lodash";
 import * as anchor from "@coral-xyz/anchor";
+import { PostDto } from "../core/models/postDto.js";
+import { PublicKey } from "@solana/web3.js";
+import { PostHeadItem } from "../components/PostHeadItem";
 
 const earthId = new BN(1);
 
 export const ViewPost = () => {
-  const { accountAddress } = useParams();
   const web3Context = useContext(Web3Context);
   const anchorWallet = useAnchorWallet();
   const { postId } = useParams();
-  const [post, setPost] = useState<PostWithReplyDto | null>(null);
+  const navigate = useNavigate();
+  const [post, setPost] = useState<PostDto | null>(null);
+  const [replies, setReplies] = useState<ReplyDto[]>([]);
   const [inputContent, setInputContent] = useState("");
   const [isCreateReplyModalOpen, setIsCreateReplyModalOpen] = useState(false);
   const [isInitLoad, setIsInitLoad] = useState<boolean>(true);
@@ -27,42 +31,21 @@ export const ViewPost = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [lastReplyId, setLastReplyId] = useState<number>(0);
 
-  if (isInitLoad && web3Context?.forumService) {
-    (async () => {
-      setIsInitLoad(false);
-      if (postId && !post) {
-        const _post = await web3Context?.forumService!.getPostReplies(
-          earthId,
-          new BN(postId)
-        );
-        setPost(_post);
-        setLastReplyId(_.last(_post.replies)?.id ?? 0);
-      }
-    })();
-  }
+  const postCreator = useMemo(
+    () =>
+      postId?.split("-")?.[0]
+        ? new PublicKey(postId?.split("-")?.[0])
+        : undefined,
+    [postId]
+  );
 
-  if (isRefetch && postId && post && web3Context?.forumService) {
-    (async () => {
-      setIsRefetch(false);
-      //getReplys
-      const replies = await web3Context.forumService!.getReplies(
-        earthId,
-        new BN(postId),
-        lastReplyId + 1
-      );
-
-      const lastReplyIdValue = _.last(post.replies)?.id ?? 0;
-      const updatedPost = _.cloneDeep(post);
-      updatedPost.replies.push(
-        ...replies.filter((reply) => reply.id > lastReplyIdValue)
-      );
-      setLastReplyId(lastReplyIdValue);
-      setPost(updatedPost);
-    })();
-  }
+  const userPostId = useMemo(
+    () => (postId?.split("-")?.[1] ? +postId?.split("-")?.[1] : undefined),
+    [postId]
+  );
 
   const createReply = useCallback(
-    async (earthId: BN, postId: BN, content: string) => {
+    async (content: string) => {
       if (!anchorWallet) {
         messageApi.open({
           type: "warning",
@@ -70,25 +53,65 @@ export const ViewPost = () => {
         });
         return;
       }
-      if (web3Context && postId) {
+      if (web3Context) {
         if (!web3Context.userInitialized) {
           messageApi.open({
             type: "warning",
             content: "User not initialized!",
           });
-        } else {
+        } else if (postCreator && userPostId) {
           await web3Context.forumService?.createReply(
             anchorWallet!.publicKey,
-            earthId,
-            postId,
+            postCreator,
+            userPostId,
             content
           );
           setIsRefetch(true);
         }
       }
     },
-    [anchorWallet, messageApi, web3Context]
+    [anchorWallet, messageApi, postCreator, userPostId, web3Context]
   );
+
+  if (!postCreator || !userPostId || !web3Context?.forumService) {
+    return <></>;
+  }
+
+  if (isInitLoad) {
+    (async () => {
+      setIsInitLoad(false);
+      if (postId && !post) {
+        const _post = await web3Context.forumService.getPost(
+          postCreator,
+          userPostId
+        );
+        setPost(_post);
+        setLastReplyId(_post.replyNextId - 1);
+      }
+    })();
+  }
+
+  if (isRefetch && post) {
+    (async () => {
+      setIsRefetch(false);
+      //getReplys
+      const newReplyDtos = await web3Context.forumService!.getPostReplys(
+        postCreator,
+        userPostId,
+        _.last(replies)?._trxHash ?? null
+      );
+
+      const lastReplyIdValue = Math.max(
+        _.last(replies)?.id ?? 0,
+        _.last(newReplyDtos)?.id ?? 0
+      );
+      setReplies([...replies, ...newReplyDtos]);
+      //   replies.push(
+      //     ...replies.filter((reply) => reply.id > lastReplyIdValue)
+      //   );
+      setLastReplyId(lastReplyIdValue);
+    })();
+  }
 
   const createReplyModal = (
     <>
@@ -102,7 +125,7 @@ export const ViewPost = () => {
               content: "Content too long!",
             });
           } else {
-            await createReply(earthId, new BN(postId!), inputContent);
+            await createReply(inputContent);
             setInputContent("");
             setIsCreateReplyModalOpen(false);
           }
@@ -137,17 +160,14 @@ export const ViewPost = () => {
     </>
   );
 
+  const postHeadItemElem = post ? <PostHeadItem post={post} /> : null;
+
   return (
     <>
       <div>
-        Replies: <Tag>{lastReplyId}</Tag>
-      </div>
-      <div>
         <Radio.Group>
-          <Radio.Button>
-            <NavLink to={`/`}>
-              <HomeFilled />
-            </NavLink>
+          <Radio.Button onClick={() => navigate("/")}>
+            <HomeFilled />
           </Radio.Button>
 
           <Radio.Button
@@ -159,33 +179,23 @@ export const ViewPost = () => {
           </Radio.Button>
         </Radio.Group>
       </div>
-      <hr />
-      <Card
-        className="post-head-card"
-        title={
-          <>
-            [P#{post?.id}] {post?.title}{" "}
-            <div style={{ float: "right" }}>
-              Author: <Tag>{post?.author?.toString() ?? "???"}</Tag>
-            </div>
-          </>
-        }
-      >
-        {
-          <>
-            <div>{post?.content}</div>
-          </>
-        }
-      </Card>
-      <hr />
-      {post?.replies?.map((reply, i) => {
-        return (
-          <div key={i}>
-            <PostReplyItem reply={reply}></PostReplyItem>
-            <div className="gap-space"></div>
-          </div>
-        );
-      })}
+
+      <Divider />
+
+      <Row>
+        <Col span={18} offset={3}>
+          {postHeadItemElem}
+          <Divider />
+          {replies.map((reply, i) => {
+            return (
+              <div key={i}>
+                <PostReplyItem reply={reply}></PostReplyItem>
+                <div className="gap-space"></div>
+              </div>
+            );
+          })}
+        </Col>
+      </Row>
 
       {createReplyModal}
       {contextHolder}

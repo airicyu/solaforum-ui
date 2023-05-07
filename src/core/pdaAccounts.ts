@@ -21,13 +21,6 @@ export class PdaAccounts {
     );
   }
 
-  userReserveReceipt(user: PublicKey) {
-    return PublicKey.findProgramAddressSync(
-      [anchor.utils.bytes.utf8.encode("user_reserve_receipt"), user.toBuffer()],
-      this.program.programId
-    );
-  }
-
   earth(earthId: BN) {
     return PublicKey.findProgramAddressSync(
       [anchor.utils.bytes.utf8.encode("earth"), fromU64(earthId)],
@@ -35,42 +28,19 @@ export class PdaAccounts {
     );
   }
 
-  postIdCounter(earthId: BN) {
+  user(user: PublicKey) {
     return PublicKey.findProgramAddressSync(
-      [anchor.utils.bytes.utf8.encode("post_id_counter"), fromU64(earthId)],
+      [anchor.utils.bytes.utf8.encode("user"), user.toBuffer()],
       this.program.programId
     );
   }
 
-  post(earthId: BN, postId: BN) {
+  post(user: PublicKey, userPostId: BN) {
     return PublicKey.findProgramAddressSync(
       [
-        anchor.utils.bytes.utf8.encode("post"),
-        fromU64(earthId),
-        fromU64(postId),
-      ],
-      this.program.programId
-    );
-  }
-
-  replyIdCounter(earthId: BN, postId: BN) {
-    return PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("reply_id_counter"),
-        fromU64(earthId),
-        fromU64(postId),
-      ],
-      this.program.programId
-    );
-  }
-
-  reply(earthId: BN, postId: BN, replyId: number) {
-    return PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("reply"),
-        fromU64(earthId),
-        fromU64(postId),
-        Uint8Array.from([replyId]),
+        anchor.utils.bytes.utf8.encode("user_post"),
+        user.toBuffer(),
+        fromU64(userPostId),
       ],
       this.program.programId
     );

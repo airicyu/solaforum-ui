@@ -1,15 +1,12 @@
-import { Card, Divider, List, Space, Tag } from "antd";
+import { Card, Divider, List, Tag } from "antd";
 import { PostDto } from "../core/models/postDto.js";
 import { NavLink } from "react-router-dom";
 import { DateTime } from "luxon";
 import { formatAgoDate } from "../utils/utils";
 
-export const EarthPostItem = ({ post }: { post: PostDto }) => {
+export const PostHeadItem = ({ post }: { post: PostDto }) => {
   const time =
-    (post.createdTime &&
-      DateTime.fromMillis(
-        Math.max(post.createdTime, post.lastReplyTime)
-      ).toLocal()) ||
+    (post.createdTime && DateTime.fromMillis(post.createdTime).toLocal()) ||
     null;
 
   const timeActual = time?.toFormat("dd MMM, yyyy, HH:mm:ss") ?? "";
@@ -17,10 +14,12 @@ export const EarthPostItem = ({ post }: { post: PostDto }) => {
   const timeDisplay = (time && formatAgoDate(time)) ?? "";
 
   return (
-    <Card className="earth-post-card">
-      {
+    <Card
+      className="post-head-card"
+      title={
         <>
           <div style={{ float: "left", width: 150 }}>
+            {" "}
             <Tag title={post.creator.toString()}>
               {post.creatorName.toString()}
             </Tag>
@@ -31,18 +30,16 @@ export const EarthPostItem = ({ post }: { post: PostDto }) => {
           <div style={{ float: "right", width: 100 }}>
             {post.replyNextId - 1} Replies
           </div>
-
+          <div style={{ clear: "both" }}></div>
           <div className="gap-space"></div>
-          <Divider />
-
           {/* <span title={post.creator.toString() + "-" + post.id}>
             [P# {post.creator.toString().substring(0, 6)}-{post.id}]{" "}
           </span> */}
-          <NavLink to={`/post/${post.creator.toString() + "-" + post.id}`}>
-            {post.title}{" "}
-          </NavLink>
+          <h1>{post.title}</h1>
         </>
       }
+    >
+      <div>{post.content}</div>
     </Card>
   );
 };

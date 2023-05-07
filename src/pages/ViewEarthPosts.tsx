@@ -1,17 +1,27 @@
 import { useEffect, useContext, useState, useCallback } from "react";
 import { NavLink } from "react-router-dom";
 import { Web3Context } from "../contexts/Web3Context";
-import { List, Modal, Input, Tag, message, Radio } from "antd";
+import {
+  List,
+  Modal,
+  Input,
+  Tag,
+  message,
+  Radio,
+  Row,
+  Col,
+  Divider,
+} from "antd";
 import BN from "bn.js";
-import { PostDto } from "../models/PostDto";
-import { EarthDto } from "../models/EarthDto";
+import { PostDto } from "../core/models/postDto";
+import { EarthDto } from "../core/models/earthDto";
 import { EarthPostItem } from "../components/EarthPostItem";
 import { EditFilled, HomeFilled } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import * as anchor from "@coral-xyz/anchor";
 
-const earthId = new BN(1);
+const earthId = 1;
 
 export const ViewEarthPosts = (props: any) => {
   // const { accountAddress } = useParams();
@@ -39,7 +49,7 @@ export const ViewEarthPosts = (props: any) => {
   }, [web3Context, web3Context?.forumService, isRefresh]);
 
   const createPost = useCallback(
-    async (earthId: BN, title: string, content: string) => {
+    async (earthId: number, title: string, content: string) => {
       if (!anchorWallet) {
         messageApi.open({
           type: "warning",
@@ -54,8 +64,13 @@ export const ViewEarthPosts = (props: any) => {
             content: "User not initialized!",
           });
         } else {
+          const user = await web3Context.forumService?.getUser(
+            anchorWallet.publicKey
+          );
+          console.log("user", user);
           await web3Context.forumService?.createPost(
             anchorWallet.publicKey,
+            user.userPostNextId,
             earthId,
             title,
             content
@@ -85,7 +100,7 @@ export const ViewEarthPosts = (props: any) => {
         title="New Post"
         open={isCreatePostModalOpen}
         onOk={async (e) => {
-          if (anchor.utils.bytes.utf8.encode(inputTitle).length > 30) {
+          if (anchor.utils.bytes.utf8.encode(inputTitle).length > 50) {
             messageApi.open({
               type: "error",
               content: "Title too long!",
@@ -116,13 +131,13 @@ export const ViewEarthPosts = (props: any) => {
           <div className="gap-space"></div>
           <div
             className={
-              anchor.utils.bytes.utf8.encode(inputTitle).length > 30
+              anchor.utils.bytes.utf8.encode(inputTitle).length > 50
                 ? "error-highlight"
                 : ""
             }
           >
             <Input
-              maxLength={30}
+              maxLength={50}
               defaultValue={inputTitle}
               onChange={(e) => {
                 setInputTitle(e.target.value);
@@ -163,7 +178,7 @@ export const ViewEarthPosts = (props: any) => {
         Universe: <Tag>{earth?.name}</Tag>
       </h2>
       <div>
-        Posts: <Tag>{earth?.postCount}</Tag>
+        Posts: <Tag>{(earth?.earthPostNextId ?? 1) - 1}</Tag>
       </div>
 
       <div>
@@ -177,8 +192,12 @@ export const ViewEarthPosts = (props: any) => {
           </Radio.Button>
         </Radio.Group>
       </div>
-      <hr />
-      {postElements}
+      <Divider />
+      <Row>
+        <Col span={18} offset={3}>
+          {postElements}
+        </Col>
+      </Row>
       {createPostModal}
       {contextHolder}
     </>

@@ -10,81 +10,6 @@ import { ForumService } from "../core/forumService";
 import { AnchorWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { Program } from "@coral-xyz/anchor";
 import config, { Config } from "../config";
-
-// class Web3ContextService {
-//   network: Config["network"] = config.network;
-//   endpoint: string = config.endpoint[this.network] as string;
-//   connection: web3.Connection = new web3.Connection(
-//     this.endpoint,
-//     // "https://solana-devnet.rpc.extrnode.com/",
-//     //"https://solana-mainnet.rpc.extrnode.com",
-//     //   web3.clusterApiUrl("mainnet-beta"),
-//     "confirmed"
-//   );
-//   anchorWallet?: AnchorWallet;
-//   userInitialized: boolean = false;
-//   anchorProvider?: anchor.AnchorProvider = undefined;
-//   program: Program<Solaforum>;
-//   pdaAccounts: PdaAccounts;
-//   programService: ProgramService;
-//   forumService: ForumService;
-
-//   constructor() {
-//     this.program = new anchor.Program<Solaforum>(
-//       idl as Solaforum,
-//       config.programId,
-//       this.anchorProvider
-//     );
-
-//     this.pdaAccounts = new PdaAccounts(this.program);
-
-//     this.programService = new ProgramService(this.program, this.pdaAccounts);
-
-//     this.forumService = new ForumService(
-//       this.connection,
-//       this.program,
-//       this.pdaAccounts,
-//       this.programService
-//     );
-//   }
-
-//   initWithWallet() {
-//     this.anchorProvider = this.anchorWallet
-//       ? new anchor.AnchorProvider(this.connection, this.anchorWallet, {
-//           commitment: "confirmed",
-//         })
-//       : undefined;
-
-//     this.program = new anchor.Program<Solaforum>(
-//       idl as Solaforum,
-//       config.programId,
-//       this.anchorProvider
-//     );
-
-//     this.pdaAccounts = new PdaAccounts(this.program);
-
-//     this.programService = new ProgramService(this.program, this.pdaAccounts);
-
-//     this.forumService = new ForumService(
-//       this.connection,
-//       this.program,
-//       this.pdaAccounts,
-//       this.programService
-//     );
-//   }
-
-//   setAnchorWallet(anchorWallet: AnchorWallet | undefined) {
-//     this.anchorWallet = anchorWallet
-//     this.initWithWallet();
-//   }
-
-//   setUserInitialized(value: boolean) {
-//     this.userInitialized = value;
-//   }
-// }
-
-// const web3ContextService = new Web3ContextService();
-
 declare type Web3ContextType = {
   // network: Config["network"];
   // endpoint: string;
@@ -204,7 +129,7 @@ const Web3ContextProvider = ({ children }: any) => {
   };
 
   return (
-    <Web3Context.Provider value={provider}>{children}</Web3Context.Provider>
+    <Web3Context.Provider value={provider!}>{children}</Web3Context.Provider>
   );
 };
 

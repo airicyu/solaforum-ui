@@ -1,5 +1,5 @@
 const config: Config = {
-  programId: "EsqBv3bcnp6iJFmB3JuEKcp12RW34FT7VbvtZYkMg2XT",
+  programId: "4HeVTFdGHgSzjmexn7k1zpJxFsBymJ7FcpwJzGARvswN",
   network: "devnet",
   endpoint: {
     devnet: "https://api.devnet.solana.com",

@@ -1,8 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
-import { PdaAccounts } from "./pdaAccounts";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { PdaAccounts } from "./pdaAccounts.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
-import { Solaforum } from "../types/solaforum";
+import type { Solaforum } from "../types/solaforum";
 
 export class ProgramService {
   program: anchor.Program<Solaforum>;
@@ -13,123 +13,86 @@ export class ProgramService {
     this.pdaAccounts = pdaAccounts;
   }
 
-  runInitialize = async () => {
-    return this.program.methods
+  initialize = async () => {
+    const trxHash = await this.program.methods
       .initialize()
       .accounts({
         earthIdCounter: this.pdaAccounts.earthIdCounter()[0],
       })
       .rpc();
-  };
-
-  runInitializeUser = async (user: PublicKey) => {
-    return this.program.methods
-      .initializeUser()
-      .accounts({
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
-      })
-      .rpc();
-  };
-
-  reserveEarthId = async (user: PublicKey) => {
-    return this.program.methods
-      .reserveEarthId()
-      .accounts({
-        earthIdCounter: this.pdaAccounts.earthIdCounter()[0],
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
-      })
-      .rpc();
+    return trxHash;
   };
 
   createEarth = async (user: PublicKey, earthId: BN, name: string) => {
-    return this.program.methods
+    const trxHash = await this.program.methods
       .createEarth({
+        earthId,
         name,
       })
       .accounts({
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
+        earthIdCounter: this.pdaAccounts.earthIdCounter()[0],
         earth: this.pdaAccounts.earth(earthId)[0],
-        postIdCounter: this.pdaAccounts.postIdCounter(earthId)[0],
       })
       .rpc();
+    return trxHash;
   };
 
-  reservePostId = async (user: PublicKey, earthId: BN) => {
-    return this.program.methods
-      .reservePostId(earthId)
+  initializeUser = async (user: PublicKey, name: string) => {
+    const trxHash = await this.program.methods
+      .initializeUser({
+        name,
+      })
       .accounts({
-        earthIdCounter: this.pdaAccounts.earthIdCounter()[0],
-        postIdCounter: this.pdaAccounts.postIdCounter(earthId)[0],
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
+        user: this.pdaAccounts.user(user)[0],
       })
       .rpc();
+    return trxHash;
   };
 
   createPost = async (
     user: PublicKey,
+    userPostId: BN,
     earthId: BN,
-    postId: BN,
     title: string,
     content: string
   ) => {
-    return this.program.methods
+    const trxHash = await this.program.methods
       .createPost({
         earthId: earthId,
         title,
         content,
       })
       .accounts({
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
-        post: this.pdaAccounts.post(earthId, postId)[0],
-        replyIdCounter: this.pdaAccounts.replyIdCounter(earthId, postId)[0],
+        earth: this.pdaAccounts.earth(earthId)[0],
+        creator: this.pdaAccounts.user(user)[0],
+        post: this.pdaAccounts.post(user, userPostId)[0],
       })
       .rpc();
-  };
-
-  reserveReplyId = async (user: PublicKey, earthId: BN, postId: BN) => {
-    return this.program.methods
-      .reserveReplyId({
-        earthId: earthId,
-        postId: postId,
-      })
-      .accounts({
-        earthIdCounter: this.pdaAccounts.earthIdCounter()[0],
-        postIdCounter: this.pdaAccounts.postIdCounter(earthId)[0],
-        replyIdCounter: this.pdaAccounts.replyIdCounter(earthId, postId)[0],
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
-      })
-      .rpc();
+    return trxHash;
   };
 
   createReply = async (
     user: PublicKey,
-    earthId: BN,
-    postId: BN,
-    replyId: number,
+    postCreator: PublicKey,
+    userPostId: BN,
     content: string
   ) => {
-    return this.program.methods
+    const trxHash = await this.program.methods
       .createReply({
-        earthId: earthId,
-        postId: postId,
+        postCreator,
+        userPostId,
         content,
       })
       .accounts({
-        userReserveReceipt: this.pdaAccounts.userReserveReceipt(user)[0],
-        reply: this.pdaAccounts.reply(earthId, postId, replyId)[0],
+        post: this.pdaAccounts.post(postCreator, userPostId)[0],
       })
       .rpc();
+    return trxHash;
   };
 
   queryEarthIdCounter = async () => {
-    return this.program.account.idCounter.fetch(
+    return this.program.account.u64IdCounter.fetch(
       this.pdaAccounts.earthIdCounter()[0]
-    );
-  };
-
-  queryUserReserveReceipt = async (user: PublicKey) => {
-    return this.program.account.idReserveReceipt.fetch(
-      this.pdaAccounts.userReserveReceipt(user)[0]
     );
   };
 
@@ -137,27 +100,13 @@ export class ProgramService {
     return this.program.account.earth.fetch(this.pdaAccounts.earth(earthId)[0]);
   };
 
-  queryPostIdCounter = async (earthId: BN) => {
-    return this.program.account.idCounter.fetch(
-      this.pdaAccounts.postIdCounter(earthId)[0]
-    );
+  queryUser = async (user: PublicKey) => {
+    return this.program.account.user.fetch(this.pdaAccounts.user(user)[0]);
   };
 
-  queryPost = async (earthId: BN, postId: BN) => {
+  queryPost = async (postCreator: PublicKey, userPostId: BN) => {
     return this.program.account.post.fetch(
-      this.pdaAccounts.post(earthId, postId)[0]
-    );
-  };
-
-  queryReplyIdCounter = async (earthId: BN, postId: BN) => {
-    return this.program.account.u8IdCounter.fetch(
-      this.pdaAccounts.replyIdCounter(earthId, postId)[0]
-    );
-  };
-
-  queryReply = async (earthId: BN, postId: BN, replyId: number) => {
-    return this.program.account.reply.fetch(
-      this.pdaAccounts.reply(earthId, postId, replyId)[0]
+      this.pdaAccounts.post(postCreator, userPostId)[0]
     );
   };
 }

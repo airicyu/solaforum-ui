@@ -6,7 +6,7 @@ declare type Solaforum = {
       name: "initialize";
       accounts: [
         {
-          name: "user";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
@@ -22,75 +22,22 @@ declare type Solaforum = {
         }
       ];
       args: [];
-    },
-    {
-      name: "initializeUser";
-      accounts: [
-        {
-          name: "user";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "userReserveReceipt";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [];
-    },
-    {
-      name: "reserveEarthId";
-      accounts: [
-        {
-          name: "user";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "earthIdCounter";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "userReserveReceipt";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [];
-      returns: "u64";
     },
     {
       name: "createEarth";
       accounts: [
         {
-          name: "user";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
         {
-          name: "userReserveReceipt";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "earth";
+          name: "earthIdCounter";
           isMut: true;
           isSigner: false;
         },
         {
-          name: "postIdCounter";
+          name: "earth";
           isMut: true;
           isSigner: false;
         },
@@ -110,25 +57,15 @@ declare type Solaforum = {
       ];
     },
     {
-      name: "reservePostId";
+      name: "initializeUser";
       accounts: [
         {
-          name: "user";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
         {
-          name: "earthIdCounter";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "postIdCounter";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "userReserveReceipt";
+          name: "user";
           isMut: true;
           isSigner: false;
         },
@@ -140,32 +77,33 @@ declare type Solaforum = {
       ];
       args: [
         {
-          name: "earthId";
-          type: "u64";
+          name: "data";
+          type: {
+            defined: "InitUserData";
+          };
         }
       ];
-      returns: "u64";
     },
     {
       name: "createPost";
       accounts: [
         {
-          name: "user";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
         {
-          name: "userReserveReceipt";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "post";
+          name: "earth";
           isMut: true;
           isSigner: false;
         },
         {
-          name: "replyIdCounter";
+          name: "creator";
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: "post";
           isMut: true;
           isSigner: false;
         },
@@ -185,64 +123,15 @@ declare type Solaforum = {
       ];
     },
     {
-      name: "reserveReplyId";
-      accounts: [
-        {
-          name: "user";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "earthIdCounter";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "postIdCounter";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "replyIdCounter";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "userReserveReceipt";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
-      ];
-      args: [
-        {
-          name: "data";
-          type: {
-            defined: "ReserveReplyIdData";
-          };
-        }
-      ];
-      returns: "u8";
-    },
-    {
       name: "createReply";
       accounts: [
         {
-          name: "user";
+          name: "signer";
           isMut: true;
           isSigner: true;
         },
         {
-          name: "userReserveReceipt";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "reply";
+          name: "post";
           isMut: true;
           isSigner: false;
         },
@@ -264,36 +153,36 @@ declare type Solaforum = {
   ];
   accounts: [
     {
-      name: "idCounter";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "nextId";
-            type: "u64";
-          }
-        ];
-      };
-    },
-    {
-      name: "u8IdCounter";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "nextId";
-            type: "u8";
-          }
-        ];
-      };
-    },
-    {
       name: "earth";
       type: {
         kind: "struct";
         fields: [
           {
+            name: "creator";
+            type: "publicKey";
+          },
+          {
             name: "id";
+            type: "u64";
+          },
+          {
+            name: "earthPostNextId";
+            type: "u64";
+          },
+          {
+            name: "name";
+            type: "string";
+          }
+        ];
+      };
+    },
+    {
+      name: "user";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "userPostNextId";
             type: "u64";
           },
           {
@@ -309,34 +198,38 @@ declare type Solaforum = {
         kind: "struct";
         fields: [
           {
-            name: "id";
-            type: "u64";
+            name: "replyNextId";
+            type: "u8";
           },
           {
-            name: "author";
-            type: "publicKey";
+            name: "createdTime";
+            type: "i64";
           },
           {
-            name: "title";
-            type: "string";
-          }
-        ];
-      };
-    },
-    {
-      name: "reply";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "author";
-            type: "publicKey";
+            name: "lastReplyTime";
+            type: "i64";
           }
         ];
       };
     },
     {
       name: "createEarthData";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "earthId";
+            type: "u64";
+          },
+          {
+            name: "name";
+            type: "string";
+          }
+        ];
+      };
+    },
+    {
+      name: "initUserData";
       type: {
         kind: "struct";
         fields: [
@@ -368,32 +261,16 @@ declare type Solaforum = {
       };
     },
     {
-      name: "reserveReplyIdData";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "earthId";
-            type: "u64";
-          },
-          {
-            name: "postId";
-            type: "u64";
-          }
-        ];
-      };
-    },
-    {
       name: "createReplyData";
       type: {
         kind: "struct";
         fields: [
           {
-            name: "earthId";
-            type: "u64";
+            name: "postCreator";
+            type: "publicKey";
           },
           {
-            name: "postId";
+            name: "userPostId";
             type: "u64";
           },
           {
@@ -404,20 +281,24 @@ declare type Solaforum = {
       };
     },
     {
-      name: "idReserveReceipt";
+      name: "u64IdCounter";
       type: {
         kind: "struct";
         fields: [
           {
-            name: "earthId";
+            name: "nextId";
             type: "u64";
-          },
+          }
+        ];
+      };
+    },
+    {
+      name: "u8IdCounter";
+      type: {
+        kind: "struct";
+        fields: [
           {
-            name: "postId";
-            type: "u64";
-          },
-          {
-            name: "replyId";
+            name: "nextId";
             type: "u8";
           }
         ];
@@ -434,7 +315,7 @@ export const IDL: Solaforum = {
       name: "initialize",
       accounts: [
         {
-          name: "user",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
@@ -450,75 +331,22 @@ export const IDL: Solaforum = {
         },
       ],
       args: [],
-    },
-    {
-      name: "initializeUser",
-      accounts: [
-        {
-          name: "user",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "userReserveReceipt",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
-      name: "reserveEarthId",
-      accounts: [
-        {
-          name: "user",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "earthIdCounter",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "userReserveReceipt",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-      returns: "u64",
     },
     {
       name: "createEarth",
       accounts: [
         {
-          name: "user",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
         {
-          name: "userReserveReceipt",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "earth",
+          name: "earthIdCounter",
           isMut: true,
           isSigner: false,
         },
         {
-          name: "postIdCounter",
+          name: "earth",
           isMut: true,
           isSigner: false,
         },
@@ -538,25 +366,15 @@ export const IDL: Solaforum = {
       ],
     },
     {
-      name: "reservePostId",
+      name: "initializeUser",
       accounts: [
         {
-          name: "user",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
         {
-          name: "earthIdCounter",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "postIdCounter",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "userReserveReceipt",
+          name: "user",
           isMut: true,
           isSigner: false,
         },
@@ -568,32 +386,33 @@ export const IDL: Solaforum = {
       ],
       args: [
         {
-          name: "earthId",
-          type: "u64",
+          name: "data",
+          type: {
+            defined: "InitUserData",
+          },
         },
       ],
-      returns: "u64",
     },
     {
       name: "createPost",
       accounts: [
         {
-          name: "user",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
         {
-          name: "userReserveReceipt",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "post",
+          name: "earth",
           isMut: true,
           isSigner: false,
         },
         {
-          name: "replyIdCounter",
+          name: "creator",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "post",
           isMut: true,
           isSigner: false,
         },
@@ -613,64 +432,15 @@ export const IDL: Solaforum = {
       ],
     },
     {
-      name: "reserveReplyId",
-      accounts: [
-        {
-          name: "user",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "earthIdCounter",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "postIdCounter",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "replyIdCounter",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "userReserveReceipt",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: "data",
-          type: {
-            defined: "ReserveReplyIdData",
-          },
-        },
-      ],
-      returns: "u8",
-    },
-    {
       name: "createReply",
       accounts: [
         {
-          name: "user",
+          name: "signer",
           isMut: true,
           isSigner: true,
         },
         {
-          name: "userReserveReceipt",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "reply",
+          name: "post",
           isMut: true,
           isSigner: false,
         },
@@ -692,36 +462,36 @@ export const IDL: Solaforum = {
   ],
   accounts: [
     {
-      name: "idCounter",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "nextId",
-            type: "u64",
-          },
-        ],
-      },
-    },
-    {
-      name: "u8IdCounter",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "nextId",
-            type: "u8",
-          },
-        ],
-      },
-    },
-    {
       name: "earth",
       type: {
         kind: "struct",
         fields: [
           {
+            name: "creator",
+            type: "publicKey",
+          },
+          {
             name: "id",
+            type: "u64",
+          },
+          {
+            name: "earthPostNextId",
+            type: "u64",
+          },
+          {
+            name: "name",
+            type: "string",
+          },
+        ],
+      },
+    },
+    {
+      name: "user",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "userPostNextId",
             type: "u64",
           },
           {
@@ -737,34 +507,38 @@ export const IDL: Solaforum = {
         kind: "struct",
         fields: [
           {
-            name: "id",
-            type: "u64",
+            name: "replyNextId",
+            type: "u8",
           },
           {
-            name: "author",
-            type: "publicKey",
+            name: "createdTime",
+            type: "i64",
           },
           {
-            name: "title",
-            type: "string",
-          },
-        ],
-      },
-    },
-    {
-      name: "reply",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "author",
-            type: "publicKey",
+            name: "lastReplyTime",
+            type: "i64",
           },
         ],
       },
     },
     {
       name: "createEarthData",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "earthId",
+            type: "u64",
+          },
+          {
+            name: "name",
+            type: "string",
+          },
+        ],
+      },
+    },
+    {
+      name: "initUserData",
       type: {
         kind: "struct",
         fields: [
@@ -796,32 +570,16 @@ export const IDL: Solaforum = {
       },
     },
     {
-      name: "reserveReplyIdData",
-      type: {
-        kind: "struct",
-        fields: [
-          {
-            name: "earthId",
-            type: "u64",
-          },
-          {
-            name: "postId",
-            type: "u64",
-          },
-        ],
-      },
-    },
-    {
       name: "createReplyData",
       type: {
         kind: "struct",
         fields: [
           {
-            name: "earthId",
-            type: "u64",
+            name: "postCreator",
+            type: "publicKey",
           },
           {
-            name: "postId",
+            name: "userPostId",
             type: "u64",
           },
           {
@@ -832,20 +590,24 @@ export const IDL: Solaforum = {
       },
     },
     {
-      name: "idReserveReceipt",
+      name: "u64IdCounter",
       type: {
         kind: "struct",
         fields: [
           {
-            name: "earthId",
+            name: "nextId",
             type: "u64",
           },
+        ],
+      },
+    },
+    {
+      name: "u8IdCounter",
+      type: {
+        kind: "struct",
+        fields: [
           {
-            name: "postId",
-            type: "u64",
-          },
-          {
-            name: "replyId",
+            name: "nextId",
             type: "u8",
           },
         ],
