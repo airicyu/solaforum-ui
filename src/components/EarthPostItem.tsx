@@ -5,16 +5,23 @@ import { DateTime } from "luxon";
 import { formatAgoDate } from "../utils/utils";
 
 export const EarthPostItem = ({ post }: { post: PostDto }) => {
-  const time =
-    (post.createdTime &&
-      DateTime.fromMillis(
-        Math.max(post.createdTime, post.lastReplyTime)
-      ).toLocal()) ||
+  const createdTime =
+    (post.createdTime && DateTime.fromMillis(post.createdTime).toLocal()) ||
     null;
 
-  const timeActual = time?.toFormat("dd MMM, yyyy, HH:mm:ss") ?? "";
+  const createdTimeActual =
+    createdTime?.toFormat("dd MMM, yyyy, HH:mm:ss") ?? "";
 
-  const timeDisplay = (time && formatAgoDate(time)) ?? "";
+  const createdTimeDisplay = (createdTime && formatAgoDate(createdTime)) ?? "";
+
+  const repliedTime =
+    (post.lastReplyTime && DateTime.fromMillis(post.lastReplyTime).toLocal()) ||
+    null;
+
+  const repliedTimeActual =
+    repliedTime?.toFormat("dd MMM, yyyy, HH:mm:ss") ?? "";
+
+  const repliedTimeDisplay = (repliedTime && formatAgoDate(repliedTime)) ?? "";
 
   return (
     <Card className="earth-post-card">
@@ -26,9 +33,14 @@ export const EarthPostItem = ({ post }: { post: PostDto }) => {
               {post.creatorName.toString()}
             </Tag>
           </div>
-          <div style={{ float: "right", width: 140 }}>
-            <Tag title={timeActual}>{timeDisplay}</Tag>
+
+          <div style={{ float: "right", width: 180 }}>
+            Replied <Tag title={repliedTimeActual}>{repliedTimeDisplay}</Tag>
           </div>
+          <div style={{ float: "right", width: 180 }}>
+            Created <Tag title={createdTimeActual}>{createdTimeDisplay}</Tag>
+          </div>
+
           <div style={{ float: "right", width: 100 }}>
             {post.replyNextId - 1} Replies
           </div>
