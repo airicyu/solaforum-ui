@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/solaforum-ui/static/css/main.9be70562.css",
-    "main.js": "/solaforum-ui/static/js/main.14381387.js",
+    "main.css": "/solaforum-ui/static/css/main.1f1b14c9.css",
+    "main.js": "/solaforum-ui/static/js/main.7bda5554.js",
     "index.html": "/solaforum-ui/index.html",
-    "main.9be70562.css.map": "/solaforum-ui/static/css/main.9be70562.css.map",
-    "main.14381387.js.map": "/solaforum-ui/static/js/main.14381387.js.map"
+    "main.1f1b14c9.css.map": "/solaforum-ui/static/css/main.1f1b14c9.css.map",
+    "main.7bda5554.js.map": "/solaforum-ui/static/js/main.7bda5554.js.map"
   },
   "entrypoints": [
-    "static/css/main.9be70562.css",
-    "static/js/main.14381387.js"
+    "static/css/main.1f1b14c9.css",
+    "static/js/main.7bda5554.js"
   ]
 }
