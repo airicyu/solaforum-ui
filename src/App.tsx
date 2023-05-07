@@ -204,23 +204,28 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <div>{userInitNotice}</div>
-        <div style={{ float: "right", paddingRight: 20 }}>
-          <div style={{ float: "right" }}>
-            <WalletMultiButton></WalletMultiButton>
+      <div style={{ paddingLeft: 20 }}>
+        <header className="App-header">
+          <h1 style={{ color: "#778899" }}>SolaForum</h1>
+          <div>{userInitNotice}</div>
+          <div style={{ float: "right", paddingRight: 20 }}>
+            <div style={{ float: "right" }}>
+              <WalletMultiButton></WalletMultiButton>
+            </div>
+            <div style={{ clear: "both" }}></div>
+            <div style={{ float: "right" }}>
+              <Button onClick={requestAirdrop}>Request airdrop</Button>{" "}
+            </div>
+            <div style={{ clear: "both" }}></div>
           </div>
-          <div style={{ clear: "both" }}></div>
-          <div style={{ float: "right" }}>
-            <Button onClick={requestAirdrop}>Request airdrop</Button>{" "}
+          <div style={{ float: "right", paddingRight: 20 }}>
+            <div>SOL balance: {balance}</div>
           </div>
-          <div style={{ clear: "both" }}></div>
+        </header>
+        <div style={{ paddingLeft: 20 }}>
+          <RouterProvider router={router} />
         </div>
-        <div style={{ float: "right", paddingRight: 20 }}>
-          <div>SOL balance: {balance}</div>
-        </div>
-        <RouterProvider router={router} />
-      </header>
+      </div>
       {initUserModel}
       {contextHolder}
     </div>

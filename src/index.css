@@ -12,17 +12,24 @@ code {
     monospace;
 } */
 
+body {
+  color: #454545;
+}
+
 .earth-post-card {
+  color: #454545;
   /* background-color:…#eeeeee; */
 }
 
 .post-head-card {
   border-width: 2px;
   border-color: #777777;
+  color: #454545;
 }
 
-/* .post-reply-card {
-} */
+.post-reply-card {
+  color: #454545;
+}
 
 .gap-space {
   width: 1px;

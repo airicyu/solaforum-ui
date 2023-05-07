@@ -38,7 +38,9 @@ export const PostHeadItem = ({ post }: { post: PostDto }) => {
         </>
       }
     >
-      <div>{post.content}</div>
+      <div>
+        <pre>{post.content}</pre>
+      </div>
     </Card>
   );
 };

@@ -29,7 +29,11 @@ export const PostReplyItem = ({ reply }: { reply: ReplyDto }) => {
         </>
       }
     >
-      {<div>{reply.content}</div>}
+      {
+        <div>
+          <pre>{reply.content}</pre>
+        </div>
+      }
     </Card>
   );
 };
